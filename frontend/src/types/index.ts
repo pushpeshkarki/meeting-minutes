@@ -26,19 +26,18 @@ export interface Summary {
   [key: string]: Section;
 }
 
+export interface SummaryResponse {
+  title: string;
+  content: string;
+  timestamp: number;
+  status: 'success' | 'error';
+  error?: string;
+  summary: Summary;
+  raw_summary?: string;
+}
+
 export interface ApiResponse {
   message: string;
   num_chunks: number;
   data: any[];
-}
-
-export interface SummaryResponse {
-  status: string;
-  summary: Summary;
-  raw_summary?: string;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
 }

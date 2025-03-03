@@ -1,19 +1,19 @@
 'use client';
 
 import React from 'react';
-import { useSidebar } from '@/components/Sidebar/SidebarProvider';
+import { useSidebar } from '@/components/layout/Sidebar/SidebarProvider';
 
 interface MainContentProps {
   children: React.ReactNode;
 }
 
 const MainContent: React.FC<MainContentProps> = ({ children }) => {
-  const { isCollapsed } = useSidebar();
+  const { isOpen } = useSidebar();
   
   return (
     <main 
       className={`flex-1 transition-all duration-300 ${
-        isCollapsed ? 'ml-16' : 'ml-64'
+        isOpen ? 'ml-64' : 'ml-16'
       }`}
     >
       <div className="pl-8">

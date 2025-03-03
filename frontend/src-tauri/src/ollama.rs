@@ -2,6 +2,7 @@ use std::process::Command;
 use serde::{Deserialize, Serialize};
 use tauri::command;
 use reqwest::blocking::Client;
+use tauri::Runtime;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OllamaModel {
@@ -100,4 +101,50 @@ fn format_size(size: i64) -> String {
     } else {
         format!("{:.1} GB", size as f64 / (1024.0 * 1024.0 * 1024.0))
     }
+}
+
+#[tauri::command]
+pub async fn check_ollama_installation() -> Result<bool, String> {
+    let output = Command::new("which")
+        .arg("ollama")
+        .output()
+        .map_err(|e| e.to_string())?;
+    
+    Ok(output.status.success())
+}
+
+#[tauri::command]
+pub async fn install_ollama() -> Result<(), String> {
+    // Download the Ollama install script
+    let curl_output = Command::new("curl")
+        .args(["-fsSL", "https://ollama.com/install.sh"])
+        .output()
+        .map_err(|e| format!("Failed to download Ollama install script: {}", e))?;
+
+    if !curl_output.status.success() {
+        return Err("Failed to download Ollama install script".to_string());
+    }
+
+    // Execute the install script
+    let install_output = Command::new("sh")
+        .arg("-c")
+        .arg(String::from_utf8_lossy(&curl_output.stdout).to_string())
+        .output()
+        .map_err(|e| format!("Failed to execute Ollama install script: {}", e))?;
+
+    if !install_output.status.success() {
+        return Err("Failed to install Ollama".to_string());
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn start_ollama_service() -> Result<(), String> {
+    Command::new("ollama")
+        .arg("serve")
+        .spawn()
+        .map_err(|e| format!("Failed to start Ollama service: {}", e))?;
+    
+    Ok(())
 }
